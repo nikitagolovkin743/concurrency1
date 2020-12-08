@@ -16,7 +16,7 @@ public class FrontSystem {
         queue.add(request);
     }
 
-    public boolean isAnyRequestAvailable() {
+    public synchronized boolean isAnyRequestAvailable() {
         return !queue.isEmpty();
     }
 
