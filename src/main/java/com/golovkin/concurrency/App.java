@@ -13,7 +13,7 @@ public class App {
             requestHandler.start();
         }
 
-        for (int i = 1; i <= CLIENT_COUNT; i++) {
+        for (int i = 0; i < CLIENT_COUNT; i++) {
             Client client = Client.createRandomClient();
             client.applyRequestTo(frontSystem);
         }

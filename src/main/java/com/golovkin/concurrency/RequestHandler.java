@@ -1,42 +1,38 @@
 package com.golovkin.concurrency;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 public class RequestHandler {
+    private static ExecutorService executorService = Executors.newCachedThreadPool();
     private static int requestHandlerCount;
     private final FrontSystem frontSystem;
     private final BackSystem backSystem;
     private final String name;
-    private Thread thread;
 
     public RequestHandler(FrontSystem frontSystem, BackSystem backSystem) {
         requestHandlerCount++;
         name = String.format("Обработчик заявок №%d", requestHandlerCount);
-
-        this.thread = new Thread(this::handleRequests);
-        this.thread.setName(name);
 
         this.frontSystem = frontSystem;
         this.backSystem = backSystem;
     }
 
     private void handleRequests() {
-        Request request = null;
         while (!Thread.currentThread().isInterrupted()) {
-            synchronized (RequestHandler.class) {
-                if (frontSystem.isAnyRequestAvailable()) {
-                    request = frontSystem.dequeue();
-                }
-            }
-
-            if (request != null) {
+            try {
+                Thread.currentThread().setName(name);
+                Request request = frontSystem.dequeue();
                 System.out.printf("%s: Получена заявка на обработку по клиенту - %S\n", name, request.getClientName());
                 backSystem.handleRequest(request, this);
-                request = null;
+            } catch (InterruptedException e) {
+                return;
             }
         }
     }
 
     public void start() {
-        thread.start();
+        executorService.submit(this::handleRequests);
     }
 
     public String getName() {

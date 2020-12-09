@@ -19,7 +19,6 @@ public class Request {
         return sum;
     }
 
-
     public OperationType getOperationType() {
         return operationType;
     }
